@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Музыкальная площадка | Загрузка и прослушивание песен</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f1f1f1;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 2px solid #0f3460;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #e94560, #ff9a9e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a9b7c6;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background-color: rgba(15, 52, 96, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #1f4068;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #e94560;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            font-size: 1.8rem;
+        }
+        
+        .upload-area {
+            border: 3px dashed #0f3460;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #e94560;
+            background-color: rgba(233, 69, 96, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3.5rem;
+            color: #e94560;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .upload-subtext {
+            color: #a9b7c6;
+            font-size: 0.9rem;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn i {
+            font-size: 1.1rem;
+        }
+        
+        .player-container {
+            text-align: center;
+        }
+        
+        .song-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .song-title {
+            font-size: 1.4rem;
+            color: #fff;
+        }
+        
+        .song-artist {
+            color: #a9b7c6;
+            font-size: 1.1rem;
+        }
+        
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .control-btn:hover {
+            background: rgba(233, 69, 96, 0.7);
+            transform: scale(1.1);
+        }
+        
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 1.6rem;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+        }
+        
+        .progress-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #e94560, #ff9a9e);
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #a9b7c6;
+            font-size: 0.9rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        
+        .donation-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .donation-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            color: #a9b7c6;
+            font-size: 1rem;
+        }
+        
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid #1f4068;
+            border-radius: 8px;
+            padding: 12px 15px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        
+        .amount-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .amount-option {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid #1f4068;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .amount-option:hover {
+            background-color: rgba(233, 69, 96, 0.2);
+            border-color: #e94560;
+        }
+        
+        .amount-option.selected {
+            background-color: rgba(233, 69, 96, 0.7);
+            border-color: #e94560;
+        }
+        
+        .file-list {
+            margin-top: 25px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #0f3460;
+            transition: all 0.3s;
+        }
+        
+        .file-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: #e94560;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+            color: #e94560;
+        }
+        
+        .file-name {
+            font-weight: 500;
+        }
+        
+        .file-size {
+            color: #a9b7c6;
+            font-size: 0.9rem;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .file-action-btn {
+            background: none;
+            border: none;
+            color: #a9b7c6;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .file-action-btn:hover {
+            color: #e94560;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #a9b7c6;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #0f3460;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background-color: #0f3460;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.5s;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: #2ecc71;
+        }
+        
+        .notification.error {
+            background-color: #e94560;
+        }
+        
+        .notification.info {
+            background-color: #3498db;
+        }
+        
+        /* Стилизация скроллбара */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #e94560;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff6b6b;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-music"></i> Музыкальная площадка</h1>
+            <p class="subtitle">Загрузите свою музыку, чтобы другие могли слушать и скачивать. Поддержите автора, отправив пожертвование.</p>
+        </header>
+        
+        <div class="main-content">
+            <!-- Левая колонка: загрузка музыки и список файлов -->
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-cloud-upload-alt"></i> Загрузка музыки</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-file-audio"></i>
+                    </div>
+                    <p class="upload-text">Перетащите аудиофайл сюда или нажмите для выбора</p>
+                    <p class="upload-subtext">Поддерживаемые форматы: MP3, WAV, OGG, FLAC (макс. 50 МБ)</p>
+                    <input type="file" id="fileInput" accept="audio/*">
+                </div>
+                
+                <button class="btn" id="uploadBtn">
+                    <i class="fas fa-upload"></i> Загрузить файл
+                </button>
+                
+                <div class="file-list" id="fileList">
+                    <h3 style="margin-bottom: 15px; color: #a9b7c6; font-size: 1.1rem;">Загруженные треки</h3>
+                    <!-- Здесь будут отображаться загруженные файлы -->
+                </div>
+            </div>
+            
+            <!-- Правая колонка: плеер -->
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-play-circle"></i> Музыкальный плеер</h2>
+                
+                <div class="player-container">
+                    <div class="song-info">
+                        <div class="song-title" id="currentSongTitle">Название трека</div>
+                        <div class="song-artist" id="currentSongArtist">Исполнитель</div>
+                    </div>
+                    
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                    
+                    <div class="player-controls">
+                        <button class="control-btn" id="prevBtn">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        <button class="control-btn play-btn" id="playBtn">
+                            <i class="fas fa-play" id="playIcon"></i>
+                        </button>
+                        <button class="control-btn" id="nextBtn">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn" id="downloadBtn">
+                            <i class="fas fa-download"></i> Скачать трек
+                        </button>
+                        <button class="btn" id="donateBtn">
+                            <i class="fas fa-heart"></i> Поддержать автора
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Блок пожертвований -->
+        <div class="card donation-container">
+            <h2 class="card-title"><i class="fas fa-donate"></i> Поддержать автора</h2>
+            
+            <div class="donation-form" id="donationForm">
+                <div class="form-group">
+                    <label for="donationAmount">Сумма пожертвования (USD)</label>
+                    <input type="number" id="donationAmount" class="form-control" min="1" step="1" value="10" placeholder="Введите сумму">
+                    
+                    <div class="amount-options">
+                        <div class="amount-option" data-amount="5">$5</div>
+                        <div class="amount-option" data-amount="10">$10</div>
+                        <div class="amount-option selected" data-amount="20">$20</div>
+                        <div class="amount-option" data-amount="50">$50</div>
+                        <div class="amount-option" data-amount="100">$100</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="donorName">Ваше имя (необязательно)</label>
+                    <input type="text" id="donorName" class="form-control" placeholder="Как к вам обращаться">
+                </div>
+                
+                <div class="form-group">
+                    <label for="donorMessage">Ваше сообщение автору (необязательно)</label>
+                    <textarea id="donorMessage" class="form-control" rows="3" placeholder="Напишите несколько слов поддержки..."></textarea>
+                </div>
+                
+                <button class="btn" id="submitDonationBtn">
+                    <i class="fas fa-paper-plane"></i> Отправить пожертвование
+                </button>
+                
+                <p style="text-align: center; color: #a9b7c6; margin-top: 15px; font-size: 0.9rem;">
+                    Пожертвование будет отправлено через безопасное соединение. Вы будете перенаправлены на страницу платежной системы.
+                </p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Музыкальная площадка. Все права защищены.</p>
+            <p>Загруженные треки принадлежат их авторам. Пожалуйста, уважайте авторские права.</p>
+        </footer>
+    </div>
+    
+    <!-- Уведомление -->
+    <div class="notification" id="notification">
+        <span id="notificationMessage">Текст уведомления</span>
+    </div>
+    
+    <script>
+        // Элементы DOM
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileList = document.getElementById('fileList');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const currentSongTitle = document.getElementById('currentSongTitle');
+        const currentSongArtist = document.getElementById('currentSongArtist');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const donateBtn = document.getElementById('donateBtn');
+        const donationForm = document.getElementById('donationForm');
+        const amountOptions = document.querySelectorAll('.amount-option');
+        const donationAmount = document.getElementById('donationAmount');
+        const submitDonationBtn = document.getElementById('submitDonationBtn');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notificationMessage');
+        
+        // Аудио объект
+        const audio = new Audio();
+        
+        // Данные о текущем треке
+        let currentTrackIndex = 0;
+        let tracks = [];
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Загружаем треки из localStorage
+            loadTracksFromStorage();
+            
+            // Обновляем список файлов
+            updateFileList();
+            
+            // Если есть треки, загружаем первый
+            if (tracks.length > 0) {
+                loadTrack(currentTrackIndex);
+            }
+            
+            // Назначаем обработчики событий
+            setupEventListeners();
+        });
+        
+        // Назначение обработчиков событий
+        function setupEventListeners() {
+            // Загрузка файла при клике на область загрузки
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            // Загрузка файла при клике на кнопку
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            
+            // Обработка выбора файла
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Drag & drop для загрузки
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+            
+            // Управление плеером
+            playBtn.addEventListener('click', togglePlay);
+            prevBtn.addEventListener('click', playPrevTrack);
+            nextBtn.addEventListener('click', playNextTrack);
+            
+            // Прогресс трека
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('ended', playNextTrack);
+            
+            // Клик по прогресс-бару для перемотки
+            progressContainer.addEventListener('click', setProgress);
+            
+            // Кнопка скачивания
+            downloadBtn.addEventListener('click', downloadCurrentTrack);
+            
+            // Кнопка пожертвования
+            donateBtn.addEventListener('click', () => {
+                donationForm.scrollIntoView({ behavior: 'smooth' });
+                donationAmount.focus();
+            });
+            
+            // Выбор суммы пожертвования
+            amountOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    amountOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    donationAmount.value = option.dataset.amount;
+                });
+            });
+            
+            // Отправка пожертвования
+            submitDonationBtn.addEventListener('click', submitDonation);
+            
+            // Синхронизация поля ввода суммы с кнопками
+            donationAmount.addEventListener('input', () => {
+                const value = parseInt(donationAmount.value);
+                amountOptions.forEach(option => {
+                    option.classList.toggle('selected', parseInt(option.dataset.amount) === value);
+                });
+            });
+        }
+        
+        // Обработка выбора файла
+        function handleFileSelect(e) {
+            if (e.target.files.length) {
+                handleFiles(e.target.files);
+            }
+        }
+        
+        // Обработка файлов
+        function handleFiles(files) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Проверка типа файла
+                if (!file.type.startsWith('audio/')) {
+                    showNotification('Пожалуйста, выберите аудиофайл', 'error');
+                    continue;
+                }
+                
+                // Проверка размера файла (макс. 50 МБ)
+                if (file.size > 50 * 1024 * 1024) {
+                    showNotification('Файл слишком большой. Максимальный размер: 50 МБ', 'error');
+                    continue;
+                }
+                
+                // Чтение файла
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // Создание объекта трека
+                    const track = {
+                        id: Date.now() + i,
+                        name: file.name.replace(/\.[^/.]+$/, ""), // Удаляем расширение
+                        artist: "Неизвестный исполнитель",
+                        url: e.target.result,
+                        size: formatFileSize(file.size),
+                        type: file.type,
+                        file: file
+                    };
+                    
+                    // Добавление трека в список
+                    tracks.push(track);
+                    
+                    // Сохранение в localStorage
+                    saveTracksToStorage();
+                    
+                    // Обновление списка файлов
+                    updateFileList();
+                    
+                    // Если это первый трек, загружаем его
+                    if (tracks.length === 1) {
+                        loadTrack(0);
+                    }
+                    
+                    showNotification(`Трек "${track.name}" успешно загружен`, 'success');
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            // Сброс значения input, чтобы можно было загружать тот же файл снова
+            fileInput.value = '';
+        }
+        
+        // Загрузка трека по индексу
+        function loadTrack(index) {
+            if (tracks.length === 0) return;
+            
+            // Обновление текущего индекса
+            currentTrackIndex = index;
+            
+            // Получение текущего трека
+            const track = tracks[index];
+            
+            // Установка источника аудио
+            audio.src = track.url;
+            
+            // Обновление информации о треке
+            currentSongTitle.textContent = track.name;
+            currentSongArtist.textContent = track.artist;
+            
+            // Сброс прогресса
+            progressBar.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+            
+            // Обновление времени продолжительности при загрузке метаданных
+            audio.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(audio.duration);
+            }, { once: true });
+            
+            // Активация кнопки скачивания
+            downloadBtn.disabled = false;
+        }
+        
+        // Переключение воспроизведения/паузы
+        function togglePlay() {
+            if (tracks.length === 0) {
+                showNotification('Сначала загрузите трек', 'error');
+                return;
+            }
+            
+            if (audio.paused) {
+                audio.play();
+                playIcon.classList.remove('fa-play');
+                playIcon.classList.add('fa-pause');
+            } else {
+                audio.pause();
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+            }
+        }
+        
+        // Воспроизведение предыдущего трека
+        function playPrevTrack() {
+            if (tracks.length === 0) return;
+            
+            currentTrackIndex--;
+            if (currentTrackIndex < 0) {
+                currentTrackIndex = tracks.length - 1;
+            }
+            
+            loadTrack(currentTrackIndex);
+            audio.play();
+            playIcon.classList.remove('fa-play');
+            playIcon.classList.add('fa-pause');
+        }
+        
+        // Воспроизведение следующего трека
+        function playNextTrack() {
+            if (tracks.length === 0) return;
+            
+            currentTrackIndex++;
+            if (currentTrackIndex >= tracks.length) {
+                currentTrackIndex = 0;
+            }
+            
+            loadTrack(currentTrackIndex);
+            audio.play();
+            playIcon.classList.remove('fa-play');
+            playIcon.classList.add('fa-pause');
+        }
+        
+        // Обновление прогресса воспроизведения
+        function updateProgress() {
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = `${percent}%`;
+                
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+            }
+        }
+        
+        // Установка прогресса при клике на прогресс-бар
+        function setProgress(e) {
+            if (tracks.length === 0) return;
+            
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            
+            audio.currentTime = (clickX / width) * duration;
+        }
+        
+        // Скачивание текущего трека
+        function downloadCurrentTrack() {
+            if (tracks.length === 0) {
+                showNotification('Нет доступных треков для скачивания', 'error');
+                return;
+            }
+            
+            const track = tracks[currentTrackIndex];
+            const link = document.createElement('a');
+            link.href = track.url;
+            link.download = track.name + getFileExtension(track.type);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification(`Трек "${track.name}" начал скачивание`, 'success');
+        }
+        
+        // Отправка пожертвования
+        function submitDonation() {
+            const amount = donationAmount.value;
+            const name = document.getElementById('donorName').value || 'Аноним';
+            const message = document.getElementById('donorMessage').value;
+            
+            if (!amount || amount < 1) {
+                showNotification('Пожалуйста, укажите сумму пожертвования', 'error');
+                return;
+            }
+            
+            // В реальном приложении здесь был бы запрос к платежной системе
+            // Для демонстрации просто показываем уведомление
+            showNotification(`Спасибо, ${name}! Ваше пожертвование в размере $${amount} успешно отправлено. ${message ? `Ваше сообщение: "${message}"` : ''}`, 'success');
+            
+            // Сброс формы
+            document.getElementById('donorName').value = '';
+            document.getElementById('donorMessage').value = '';
+            donationAmount.value = '10';
+            
+            // Сброс выбора кнопок
+            amountOptions.forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.amount === '10') {
+                    option.classList.add('selected');
+                }
+            });
+        }
+        
+        // Обновление списка файлов
+        function updateFileList() {
+            if (tracks.length === 0) {
+                fileList.innerHTML = '<p style="color: #a9b7c6; text-align: center; padding: 20px;">Загруженные треки появятся здесь</p>';
+                return;
+            }
+            
+            let html = '<h3 style="margin-bottom: 15px; color: #a9b7c6; font-size: 1.1rem;">Загруженные треки</h3>';
+            
+            tracks.forEach((track, index) => {
+                const isActive = index === currentTrackIndex;
+                const activeClass = isActive ? 'style="border-left-color: #e94560; background-color: rgba(233, 69, 96, 0.1);"' : '';
+                
+                html += `
+                    <div class="file-item" ${activeClass} data-index="${index}">
+                        <div class="file-info">
+                            <div class="file-icon">
+                                <i class="fas fa-music"></i>
+                            </div>
+                            <div>
+                                <div class="file-name">${track.name}</div>
+                                <div class="file-size">${track.size} • ${track.artist}</div>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="file-action-btn play-file-btn" data-index="${index}" title="Воспроизвести">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="file-action-btn delete-file-btn" data-index="${index}" title="Удалить">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            fileList.innerHTML = html;
+            
+            // Назначение обработчиков для кнопок в списке файлов
+            document.querySelectorAll('.play-file-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    loadTrack(index);
+                    audio.play();
+                    playIcon.classList.remove('fa-play');
+                    playIcon.classList.add('fa-pause');
+                    updateFileList(); // Обновляем список для выделения активного трека
+                });
+            });
+            
+            document.querySelectorAll('.delete-file-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    deleteTrack(index);
+                });
+            });
+            
+            // Клик по всему элементу файла для выбора
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('file-action-btn')) {
+                        const index = parseInt(item.dataset.index);
+                        loadTrack(index);
+                        audio.play();
+                        playIcon.classList.remove('fa-play');
+                        playIcon.classList.add('fa-pause');
+                        updateFileList();
+                    }
+                });
+            });
+        }
+        
+        // Удаление трека
+        function deleteTrack(index) {
+            if (confirm('Вы уверены, что хотите удалить этот трек?')) {
+                tracks.splice(index, 1);
+                
+                // Сохранение в localStorage
+                saveTracksToStorage();
+                
+                // Обновление списка файлов
+                updateFileList();
+                
+                // Если удален текущий трек, загружаем другой
+                if (tracks.length > 0) {
+                    if (index === currentTrackIndex) {
+                        currentTrackIndex = Math.min(index, tracks.length - 1);
+                        loadTrack(currentTrackIndex);
+                    } else if (index < currentTrackIndex) {
+                        currentTrackIndex--;
+                    }
+                } else {
+                    // Если треков не осталось
+                    audio.src = '';
+                    currentSongTitle.textContent = 'Название трека';
+                    currentSongArtist.textContent = 'Исполнитель';
+                    progressBar.style.width = '0%';
+                    currentTimeEl.textContent = '0:00';
+                    durationEl.textContent = '0:00';
+                    playIcon.classList.remove('fa-pause');
+                    playIcon.classList.add('fa-play');
+                    downloadBtn.disabled = true;
+                }
+                
+                showNotification('Трек удален', 'info');
+            }
+        }
+        
+        // Сохранение треков в localStorage
+        function saveTracksToStorage() {
+            // Сохраняем только необходимые данные (без объекта File)
+            const tracksToSave = tracks.map(track => ({
+                id: track.id,
+                name: track.name,
+                artist: track.artist,
+                url: track.url,
+                size: track.size,
+                type: track.type
+            }));
+            
+            localStorage.setItem('musicTracks', JSON.stringify(tracksToSave));
+        }
+        
+        // Загрузка треков из localStorage
+        function loadTracksFromStorage() {
+            const savedTracks = localStorage.getItem('musicTracks');
+            
+            if (savedTracks) {
+                const parsedTracks = JSON.parse(savedTracks);
+                tracks = parsedTracks;
+            }
+        }
+        
+        // Показать уведомление
+        function showNotification(message, type = 'info') {
+            notificationMessage.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(type);
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+        
+        // Вспомогательные функции
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' Б';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' КБ';
+            else return (bytes / 1048576).toFixed(1) + ' МБ';
+        }
+        
+        function getFileExtension(mimeType) {
+            const extensions = {
+                'audio/mpeg': '.mp3',
+                'audio/wav': '.wav',
+                'audio/ogg': '.ogg',
+                'audio/flac': '.flac',
+                'audio/x-flac': '.flac'
+            };
+            
+            return extensions[mimeType] || '.audio';
+        }
+    </script>
+</body>
+</html>
